@@ -5,6 +5,9 @@ import scala.scalajs.js.annotation.*
 
 import org.scalajs.dom
 
+import scalogic.unify.{Term, Relation, Formula}
+import scalogic.unify.Syntax.*
+
 def fib(n: Int): Int = n match {
   case 0 | 1 => n
   case _ => fib(n - 1) + fib(n - 2)
@@ -55,28 +58,26 @@ def Main(): Unit = {
   app.appendChild(stuff)
 
   {
-    import scalogic.unify.*
     val x = Term.Var("x")
     val y = Term.Var("y")
-    val f = Formula.And(Formula.Eq(x, y), Formula.Eq(x, Term.Const(1)))
+    val f = (x === y) && (x === Term.Const(1))
     stuff.textContent += f.solve.toString + "\n"
   }
 
   {
-    import scalogic.unify.*
     val x = Term.Var("a")
     val y = Term.Var("b")
-    val eq1: Term.Relation = Term.Relation("eq1", List("x"), Formula.Eq(x, Term.Const(1)))
-    val f = Formula.And(Formula.Eq(x, y), Formula.RelApp(eq1, List(y)))
+    val eq1 = Relation("eq1", List("x"), x === Term.Const(1))
+    val f = (x === y) && eq1(x)
     stuff.textContent += f.solve.toString + "\n"
   }
 
   {
-    import scalogic.unifyunion.*
-    val x = Var("c")
-    val y = Var("d")
-    val eq1 = Relation("eq1", List("x"), Formula.Eq(x, Const(1)))
-    val f = Formula.And(Formula.Eq(x, y), Formula.RelApp(eq1, List(y)))
+    val x = Term.Var("x")
+    val y = Term.Var("y")
+    val z = Term.Var("z")
+    def connected: Relation = Relation("connected", List("x", "z"), (x === z) || (connected(x, y) && connected(y, z)))
+    val f = connected(x, y) && connected(y, z)
     stuff.textContent += f.solve.toString + "\n"
   }
 }
