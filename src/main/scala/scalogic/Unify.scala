@@ -31,6 +31,7 @@ def unify(t1: Term, t2: Term): Option[Substs] = (t1, t2) match {
     case (t1: Var, t2) => Some(Map(t1 -> t2))
     case (t1, t2: Var) => Some(Map(t2 -> t1))
     case (Tuple(ts1), Tuple(ts2)) if ts1.length == ts2.length => {
+      // TODO, make this a fold and accumulate substs
       val substs = ts1.zip(ts2).map({ case (x, y) => unify(x, y) })
       if (substs.contains(None)) { 
         None 
@@ -64,7 +65,7 @@ enum Formula {
     case Or(f1, f2) => Or(f1.withSubst(pat, replacement), f2.withSubst(pat, replacement))
     case Not(f) => Not(f.withSubst(pat, replacement))
     case Fact(name, args) => Fact(name, args.map(_.withSubst(pat, replacement)))
-    case RelApp(name, args) => RelApp(name, args.map(_.withSubst(pat, replacement)))
+    case RelApp(name, args) => RelApp(name, args)
   }
 
   def withSubsts(substs: Substs): Formula = substs.foldLeft(this) {
@@ -95,6 +96,7 @@ enum Formula {
       val newBody = body.withSubsts(substs)
       val newBindings = newBody.solve
 
+      // newBindings
       newBindings.map { bindings =>
         args.map(a => (a, a.withSubsts(bindings))).filter({ case (a, b) => a != b }).toMap
       }

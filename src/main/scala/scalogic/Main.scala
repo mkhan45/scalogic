@@ -119,6 +119,13 @@ def Main(): Unit = {
     )
     given Map[String, Relation] = relations
 
-    run(sameLength(Tuple(1, Tuple(2, Tuple(3, Tuple()))), Tuple(5, Tuple(4, Tuple(2, Tuple())))))
+    val l1 = ConsList(1, 2, 3, 4)
+    val l2 = ConsList(5, 4, 2, 1)
+    val l3 = ConsList(1, 2, 3)
+    run(
+      sameLength(l1, l2),
+      sameLength(l1, l3),
+      sameLength(ConsList(1, 2, 3, 4), "x")
+    )
   }
 }

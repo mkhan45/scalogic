@@ -37,6 +37,8 @@ case class MkRelation(name: String) {
 
 def Tuple(ts: Term*): Term.Tuple = Term.Tuple(ts.toList)
 
+def ConsList(ts: Term*): Term = ts.foldRight(Tuple())(Tuple(_, _))
+
 object Conversions {
   given Conversion[Int, Term] = Term.Const(_)
   given Conversion[String, Term] = Term.Var(_)
