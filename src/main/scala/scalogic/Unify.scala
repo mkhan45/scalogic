@@ -1,113 +1,81 @@
 package scalogic.unify
 
-case class Relation(name: String, args: List[String], body: Formula) {
-  def withSubst(v: String, `for`: Term): Relation = {
-    println(s"Relation withSubst($v, ${`for`})($this)")
-    this match {
-      case Relation(name, args, body) => Relation(name, args, body.withSubst(v, `for`))
-    }
+type Term = Int | String | Boolean
+
+extension (t: Term) {
+  def withSubst(pat: Term, replacement: Term): Term = t match {
+    case `pat` => replacement
+    case _ => t
   }
 }
 
-object Relation {
-  def apply(name: String, args: List[String])(body: Relation => Formula): Relation = {
-    Relation(name, args, body(Relation(s"_rec_$name", args, null)))
-  }
+def unify(t1: Term, t2: Term): Option[Substs] = (t1, t2) match {
+    case (t1: Int, t2: Int) if t1 == t2 => Some(Map.empty)
+    case (t1: String, t2: String) if t1 == t2 => Some(Map.empty)
+    case (t1: String, t2) => Some(Map(t1 -> t2))
+    case (t1, t2: String) => Some(Map(t2 -> t1))
+    case _ => None
 }
 
-case class Fact(name: String) {
-  // def apply(args: Term*): Formula = Formula.RelApp(Relation(name, this.args, null), args.toList)
-}
+type Substs = Map[Term, Term]
 
-enum Term {
-  case Var(name: String)
-  case Const(v: Int)
-  case FactApp(fact: Fact, args: List[Term])
+case class Relation(argNames: List[String], body: Formula)
 
-  def withSubst(v: String, `for`: Term): Term = this match {
-    case Var(name) if name == v => `for`
-    case FactApp(fact, args) => FactApp(fact, args.map(_.withSubst(v, `for`)))
-    case _ => this
-  }
-}
-
-type Substs = Map[String, Term]
-extension (substs: Substs) {
-  def apply(v: String): Term = substs(v) match {
-    case Term.Var(v2) => substs(v2)
-    case t => t
-  }
-}
+def conjunct(fs: Formula*): Formula = fs.reduceLeft(Formula.And(_, _))
+def disjunct(fs: Formula*): Formula = fs.reduceLeft(Formula.Or(_, _))
 
 enum Formula {
-  case True
-  case False
   case Eq(t1: Term, t2: Term)
   case And(f1: Formula, f2: Formula)
   case Or(f1: Formula, f2: Formula)
   case Not(f: Formula)
-  case RelApp(rel: Relation, args: List[Term])
+  case Fact(name: String, args: List[Term])
+  case RelApp(name: String, args: List[Term])
 
-  def withSubst(v: String, `for`: Term): Formula = {
-    println(s"Formula withSubst($v, ${`for`})($this)")
-    this match {
-    case True => True
-    case False => False
-    case Eq(t1, t2) => Eq(t1.withSubst(v, `for`), t2.withSubst(v, `for`))
-    case And(f1, f2) => And(f1.withSubst(v, `for`), f2.withSubst(v, `for`))
-    case Or(f1, f2) => Or(f1.withSubst(v, `for`), f2.withSubst(v, `for`))
-    case Not(f) => Not(f.withSubst(v, `for`))
-    case RelApp(rel, args) => {
-      RelApp(rel, args.map(_.withSubst(v, `for`)))
-    }
-    }
+  def withSubst(pat: Term, replacement: Term): Formula = this match {
+    case Eq(t1, t2) => Eq(t1.withSubst(pat, replacement), t2.withSubst(pat, replacement))
+    case And(f1, f2) => And(f1.withSubst(pat, replacement), f2.withSubst(pat, replacement))
+    case Or(f1, f2) => Or(f1.withSubst(pat, replacement), f2.withSubst(pat, replacement))
+    case Not(f) => Not(f.withSubst(pat, replacement))
+    case Fact(name, args) => Fact(name, args.map(_.withSubst(pat, replacement)))
+    case RelApp(name, args) => RelApp(name, args.map(_.withSubst(pat, replacement)))
   }
 
-  def withSubsts(substs: Substs): Formula = substs.foldLeft(this) { case (f, (v, t)) => f.withSubst(v, t) }
+  def withSubsts(substs: Substs): Formula = substs.foldLeft(this) {
+    case (f, (pat, replacement)) => f.withSubst(pat, replacement)
+  }
 
-  def solve: Option[Substs] = {
-    println(s"solve($this)")
-    this match {
-    case True => Some(Map.empty)
-    case False => None
+  def solve(using facts: Set[Fact], relations: Map[String, Relation]): Option[Substs] = this match {
     case Eq(t1, t2) => unify(t1, t2)
     case And(f1, f2) => for {
-      s1 <- f1.solve
-      s2 <- f2.withSubsts(s1).solve
-    } yield s1 ++ s2
+      substs1 <- f1.solve
+      substs2 <- f2.withSubsts(substs1).solve
+    } yield substs1 ++ substs2
     case Or(f1, f2) => f1.solve.orElse(f2.solve)
-    case Not(f) => f.solve.map(_ => Map.empty)
-    case RelApp(rel, args) => {
-      print(s"Rel Subst: $rel")
-      rel.body.withSubsts(rel.args.zip(args).toMap).solve
+    case Not(f) => if f.solve.isEmpty then Some(Map.empty) else None // doesn't work
+    case Fact(name, args) => {
+      val validSubsts = for {
+        fact <- facts.filter(_.name == name).filter(_.args.length == args.length)
+        fargs = fact.args
+        substs <- conjunct(args.zip(fargs).map({ case (x, y) => Eq(x, y) })*).solve
+      } yield substs
+      validSubsts.headOption
     }
+    case RelApp(name, args) => {
+      val Relation(argNames, body) = relations(name)
+      val substs = argNames.zip(args).toMap[Term, Term]
+      val newBindings = body.withSubsts(substs).solve
+      newBindings.map(_.filterKeys(argNames.contains).toMap)
     }
   }
-}
 
-def unify(t1: Term, t2: Term): Option[Substs] = {
-  println(s"unify($t1, $t2)")
-  (t1, t2) match {
-  case (Term.Const(v1), Term.Const(v2)) if v1 == v2 => Some(Map.empty)
-  case (Term.Var(v1), Term.Var(v2)) if v1 == v2 => Some(Map.empty)
-  case (Term.Var(v1), t2) => Some(Map(v1 -> t2))
-  case (t1, Term.Var(v2)) => Some(Map(v2 -> t1))
-  case _ => None
-  }
-}
-
-object Syntax {
-  extension (f: Formula) {
-    def &&(g: Formula): Formula = Formula.And(f, g)
-    def ||(g: Formula): Formula = Formula.Or(f, g)
-    def unary_! : Formula = Formula.Not(f)
+  case class Res(substs: Option[Substs]) {
+    override def toString: String = substs match {
+      case Some(m) if m.isEmpty => "true"
+      case None => "false"
+      case Some(m) => m.toString
+    }
   }
 
-  extension (t: Term) {
-    def ===(u: Term): Formula = Formula.Eq(t, u)
-  }
-
-  extension (rel: Relation) {
-    def apply(args: Term*): Formula = Formula.RelApp(rel, args.toList)
-  }
+  def ?(using facts: Set[Fact], relations: Map[String, Relation]): Res = Res(solve)
 }

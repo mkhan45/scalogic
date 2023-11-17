@@ -5,8 +5,10 @@ import scala.scalajs.js.annotation.*
 
 import org.scalajs.dom
 
-// import scalogic.unify.{Term, Relation, Formula}
-// import scalogic.unify.Syntax.*
+import scalogic.unify.*
+import scalogic.unifysyntax.*
+
+import Formula.Fact
 
 def fib(n: Int): Int = n match {
   case 0 | 1 => n
@@ -57,63 +59,25 @@ def Main(): Unit = {
   val stuff = dom.document.createElement("pre")
   app.appendChild(stuff)
 
-  // {
-  //   val x = Term.Var("x")
-  //   val y = Term.Var("y")
-  //   val f = (x === y) && (x === Term.Const(1))
-  //   stuff.textContent += f.solve.toString + "\n"
-  // }
-
-  // {
-  //   val x = Term.Var("a")
-  //   val y = Term.Var("b")
-  //   val eq1 = Relation("eq1", List("x"), x === Term.Const(1))
-  //   val f = (x === y) && eq1(x)
-  //   stuff.textContent += f.solve.toString + "\n"
-  // }
-
-  // {
-  //   val x = Term.Var("x")
-  //   val y = Term.Var("y")
-  //   val z = Term.Var("z")
-  //   // def connected: Relation = Relation("connected", List("x", "z"), (x === z) || (connected(x, y) && connected(y, z)))
-  //   def connected: Relation = Relation("connected", List("x", "z")) { connected =>
-  //     edge(x, z) || (edge(x, y) && connected(y, z))
-  //   }
-  //   def edge: Relation = Relation("edge", List("x", "y"), 
-  //     (x === y) 
-  //     || ((x === Term.Const(1)) && (y === Term.Const(2)))
-  //     || ((x === Term.Const(2)) && (y === Term.Const(3)))
-  //   )
-  //   val f = connected(Term.Const(1), Term.Const(3))
-  //   stuff.textContent += f.solve.toString + "\n"
-  // }
-  //
-
   {
-    import scalogic.unifynew.*
-    import Formula.*
-
-    val facts = Set[Fact](
-      Fact("edge", List(1, 2)),
-      Fact("edge", List(2, 3)),
-    )
-
     def edge = MkFact("edge")
+    val facts = Set[Fact](
+      edge(1, 2),
+      edge(2, 3),
+    )
 
     val connected = MkRelation("connected")
 
     val relations = Map[String, Relation](
-      "connected" -> Relation("connected", List("x", "z"), Or(
-        edge("x", "z"),
-        And(edge("x", "y"), connected("y", "z"))
-      ))
+      "connected" -> connected.define("x", "z") { case Seq(x, z) =>
+        (x === z) || edge(x, z) || (edge(x, "y") && connected("y", z))
+      },
     )
 
     given Set[Fact] = facts
     given Map[String, Relation] = relations
 
     val f = connected(1, 3)
-    stuff.textContent += s"$f: ${f.solve}\n"
+    stuff.textContent += s"$f: ${f.?}\n"
   }
 }
