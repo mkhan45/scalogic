@@ -69,13 +69,12 @@ enum Formula {
     }
   }
 
-  case class Res(substs: Option[Substs]) {
-    override def toString: String = substs match {
-      case Some(m) if m.isEmpty => "true"
-      case None => "false"
-      case Some(m) => m.toString
-    }
+  override def toString: String = this match {
+    case Formula.Eq(t1, t2) => s"$t1 == $t2"
+    case Formula.And(f1, f2) => s"($f1 && $f2)"
+    case Formula.Or(f1, f2) => s"($f1 || $f2)"
+    case Formula.Not(f) => s"!($f)"
+    case Formula.Fact(name, args) => s"$name(${args.mkString(", ")})"
+    case Formula.RelApp(name, args) => s"$name(${args.mkString(", ")})"
   }
-
-  def ?(using facts: Set[Fact], relations: Map[String, Relation]): Res = Res(solve)
 }

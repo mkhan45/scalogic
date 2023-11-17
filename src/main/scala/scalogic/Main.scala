@@ -78,6 +78,9 @@ def Main(): Unit = {
     given Map[String, Relation] = relations
 
     val f = connected(1, 3)
+    for (fact <- facts) stuff.textContent += s"$fact\n"
+    stuff.textContent += s"connected(x, z) :- ${relations("connected").body}\n"
+    stuff.textContent += "\n"
     stuff.textContent += s"$f: ${f.?}\n"
   }
 }
