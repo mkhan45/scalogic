@@ -1,19 +1,45 @@
 package scalogic.unify
 
-type Term = Int | String | Boolean
+enum Term {
+  case Const(i: Int)
+  case Var(name: String)
+  case Tuple(ts: List[Term])
 
-extension (t: Term) {
-  def withSubst(pat: Term, replacement: Term): Term = t match {
+  def withSubst(pat: Term, replacement: Term): Term = this match {
     case `pat` => replacement
-    case _ => t
+    case Tuple(ts) => Tuple(ts.map(_.withSubst(pat, replacement)))
+    case _ => this
+  }
+
+  def withSubsts(substs: Substs): Term = substs.foldLeft(this) {
+    case (t, (pat, replacement)) => t.withSubst(pat, replacement)
+  }
+
+  override def toString: String = this match {
+    case Const(i) => i.toString
+    case Var(name) => name
+    case Tuple(ts) => s"(${ts.mkString(", ")})"
   }
 }
+import Term._
 
 def unify(t1: Term, t2: Term): Option[Substs] = (t1, t2) match {
-    case (t1: Int, t2: Int) if t1 == t2 => Some(Map.empty)
-    case (t1: String, t2: String) if t1 == t2 => Some(Map.empty)
-    case (t1: String, t2) => Some(Map(t1 -> t2))
-    case (t1, t2: String) => Some(Map(t2 -> t1))
+    case (t1: Const, t2: Const) if t1 == t2 => Some(Map.empty)
+    case (t1: Const, t2: Const) if t1 == t2 => Some(Map.empty)
+    case (t1: Const, t2: Const) => None
+    case (t1: Var, t2: Var) if t1 == t2 => Some(Map.empty)
+    case (t1: Var, t2) => Some(Map(t1 -> t2))
+    case (t1, t2: Var) => Some(Map(t2 -> t1))
+    case (Tuple(ts1), Tuple(ts2)) if ts1.length == ts2.length => {
+      val substs = ts1.zip(ts2).map({ case (x, y) => unify(x, y) })
+      if (substs.contains(None)) { 
+        None 
+      } else {
+        val flattened = substs.flatten
+        if flattened.isEmpty then Some(Map.empty)
+        else Some(flattened.reduceLeft(_ ++ _))
+      }
+    }
     case _ => None
 }
 
@@ -63,9 +89,15 @@ enum Formula {
     }
     case RelApp(name, args) => {
       val Relation(argNames, body) = relations(name)
-      val substs = argNames.zip(args).toMap[Term, Term]
-      val newBindings = body.withSubsts(substs).solve
-      newBindings.map(_.filterKeys(argNames.contains).toMap)
+      // val newBody = conjunct((assigns :+ body): _*)
+      // println(s"body: $body, newBody: $newBody")
+      val substs = argNames.map(Term.Var(_)).zip(args).toMap[Term, Term]
+      val newBody = body.withSubsts(substs)
+      val newBindings = newBody.solve
+
+      newBindings.map { bindings =>
+        args.map(a => (a, a.withSubsts(bindings))).filter({ case (a, b) => a != b }).toMap
+      }
     }
   }
 

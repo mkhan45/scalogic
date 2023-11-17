@@ -7,6 +7,7 @@ import org.scalajs.dom
 
 import scalogic.unify.*
 import scalogic.unifysyntax.*
+import scalogic.unifysyntax.Conversions.given
 
 import Formula.Fact
 
@@ -59,6 +60,15 @@ def Main(): Unit = {
   val stuff = dom.document.createElement("pre")
   app.appendChild(stuff)
 
+  def run(fs: Formula*)(using facts: Set[Fact], relations: Map[String, Relation]): Unit = {
+    for (fact <- facts) stuff.textContent += s"$fact\n"
+    for ((name, relation) <- relations) 
+      stuff.textContent += s"$name(${relation.argNames.mkString(", ")}) :- ${relation.body}\n"
+    stuff.textContent += "\n"
+
+    for (f <- fs) stuff.textContent += s"$f: ${f.?}\n"
+  }
+
   {
     def edge = MkFact("edge")
     val facts = Set[Fact](
@@ -77,10 +87,38 @@ def Main(): Unit = {
     given Set[Fact] = facts
     given Map[String, Relation] = relations
 
-    val f = connected(1, 3)
-    for (fact <- facts) stuff.textContent += s"$fact\n"
-    stuff.textContent += s"connected(x, z) :- ${relations("connected").body}\n"
-    stuff.textContent += "\n"
-    stuff.textContent += s"$f: ${f.?}\n"
+    run(
+      edge(1, 2), edge(2, 3),
+      edge(1, 3),
+      connected(1, 3),
+    )
+  }
+
+  {
+    given Set[Fact] = Set[Fact]()
+
+    val relations = Map[String, Relation]()
+    given Map[String, Relation] = relations
+
+    val a = Tuple("x", 1, "z")
+    val b = Tuple("z", "y", "x")
+
+    run(a === b)
+  }
+
+  {
+    given Set[Fact] = Set[Fact]()
+
+    def sameLength = MkRelation("sameLength")
+    val relations = Map[String, Relation](
+      "sameLength" -> sameLength.define("x", "y") { case Seq(x, y) =>
+        ((x === Tuple()) && (y === Tuple())) || (
+          ("x" === Tuple("xh", "xs")) && ("y" === Tuple("yh", "ys")) && sameLength("xs", "ys")
+        )
+      },
+    )
+    given Map[String, Relation] = relations
+
+    run(sameLength(Tuple(1, Tuple(2, Tuple(3, Tuple()))), Tuple(5, Tuple(4, Tuple(2, Tuple())))))
   }
 }

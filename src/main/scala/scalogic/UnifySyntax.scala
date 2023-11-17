@@ -21,15 +21,6 @@ extension (e: Formula) {
   def unary_! : Formula.Not = Formula.Not(e)
 
   def ?(using facts: Set[Formula.Fact], relations: Map[String, Relation]): Res = Res(e.solve)
-
-  def toString: String = e match {
-    case Formula.Eq(t1, t2) => s"$t1 == $t2"
-    case Formula.And(f1, f2) => s"($f1 && $f2)"
-    case Formula.Or(f1, f2) => s"($f1 || $f2)"
-    case Formula.Not(f) => s"!($f)"
-    case Formula.Fact(name, args) => s"$name(${args.mkString(", ")})"
-    case Formula.RelApp(name, args) => s"$name(${args.mkString(", ")})"
-  }
 }
 
 case class MkFact(name: String) {
@@ -40,6 +31,15 @@ case class MkRelation(name: String) {
   def apply(args: Term *): Formula.RelApp = Formula.RelApp(name, args.toList)
 
   def define(argNames: String*)(body: Seq[Term] => Formula): Relation = {
-    Relation(argNames.toList, body(argNames))
+    Relation(argNames.toList, body(argNames.map(Term.Var(_))))
   }
+}
+
+def Tuple(ts: Term*): Term.Tuple = Term.Tuple(ts.toList)
+
+object Conversions {
+  given Conversion[Int, Term] = Term.Const(_)
+  given Conversion[String, Term] = Term.Var(_)
+  given Conversion[List[Term], Term] = Term.Tuple(_)
+  given[T](using conv: Conversion[T, Term]): Conversion[List[T], Term] = _.map(conv).toList
 }
