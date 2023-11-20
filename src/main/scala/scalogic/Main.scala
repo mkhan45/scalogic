@@ -119,13 +119,15 @@ def Main(): Unit = {
     )
     given Map[String, Relation] = relations
 
+    println("===")
     val l1 = ConsList(1, 2, 3, 4)
     val l2 = ConsList(5, 4, 2, 1)
     val l3 = ConsList(1, 2, 3)
     run(
-      sameLength(l1, l2),
-      sameLength(l1, l3),
-      sameLength(ConsList(1, 2, 3, 4), "x")
+      Tuple("xh", "xs") === ConsList(1, 2, 3, 4),
+      sameLength(ConsList(1, 2), ConsList(2, 3)),
+      sameLength(ConsList(1, 2), ConsList(2)),
+      sameLength(Tuple(1, Tuple(3, Tuple(5, Tuple()))), Tuple(1, Tuple(3, "a")))
     )
   }
 }
