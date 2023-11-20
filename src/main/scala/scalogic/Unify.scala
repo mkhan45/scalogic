@@ -42,9 +42,8 @@ def unify(t1: Term, t2: Term): Option[Substs] = (t1, t2) match {
     case (t1: Var, t2: Var) if t1 == t2 => Some(Map.empty)
     case (t1: Var, t2) => Some(Map(t1 -> t2))
     case (t1, t2: Var) => Some(Map(t2 -> t1))
-    // case _ if t1 != t2 && t1.occursIn(t2) || t2.occursIn(t1) => None
+    // case _ if t1 != t2 && t1.occursIn(t2) || t2.occursIn(t1) => None // TODO
     case (Tuple(ts1), Tuple(ts2)) if ts1.length == ts2.length => {
-      // println(s"ts1: $ts1, ts2: $ts2")
       ts1.zip(ts2).foldLeft(Some(Map.empty): Option[Substs]) { case (substAcc, (l, r)) =>
         for {
           substs <- substAcc
@@ -115,7 +114,6 @@ enum Formula {
         fact <- facts.filter(_.name == name).filter(_.args.length == args.length)
         fargs = fact.args
         term = conjunct(args.zip(fargs).map({ case (x, y) => Eq(x, y) })*)
-        // _ = println(s"fact: $fact, fargs: $fargs, term: $term, solve: ${term.solve}")
         substs <- term.solve
       } yield substs
       validSubsts.headOption
@@ -128,44 +126,17 @@ enum Formula {
       val newRel = {
         val vs = body.freeVars.toList
         val nvs = vs.map(v => Term.Var(v + "'"))
-        // TODO: something is wrong with substs somehow
         val substs = vs.map(Term.Var(_)).zip(nvs).toMap
-        // println(s"vs: $vs \n nvs: $nvs \n substs: $substs \n oldBody: $body")
         val nargs = argNames.map(_ + "'")
-        // val newBody = conjunct(fstAssigns :+ body.withSubsts(substs): _*)
         val newBody = body.withSubsts(substs)
         Relation(nargs, newBody)
-
-        // ((x'' == () && y'' == ()) 
-        // && ((x' == (2, ()) && y' == (3, ())) 
-        // && ((x' == (1, (2, ())) && y'' == (2, (3, ()))) && ((x'' == () && y'' == ()) || ((x'' == (xh'', xs'') && y'' == (yh'', ys'')) && sameLength(xs'', ys''))))))
       }
 
-      // println(s"term: $term")
       val cs = term.solve(using facts, relations + (name -> newRel))
-      // cs
       cs.map { cs =>
         val vs = args.map(_.freeVars).reduceLeft(_ ++ _).map(Term.Var(_))
         cs.filter({ case (k, v) => vs.contains(k) }).map({case (k, v) => (k, cs.fullEval(k)) })
       }
-      // cs.flatMap { cs =>
-      //   val argVarTerms = argNames.map(Term.Var(_))
-      //   val argResultTerms = argVarTerms.map(cs)
-      //   val argTuple = Tuple(args)
-      //   val argResultTuple = Tuple(argResultTerms)
-      //   // println(s"${argTuple.occursIn(argResultTuple)}")
-      //   val res = unify(Tuple(args), Tuple(argResultTerms))
-      //   // println(s"args: ${Tuple(args)}, argResultTerms: ${Tuple(argResultTerms)}, res: $res")
-      //   res
-      // }
-      // argNames.zip(args).foldLeft(Some(Map.empty): Option[Substs]) { case (substAcc, (name, arg)) =>
-      //   for {
-      //     substs <- substAcc
-      //     newSubsts <- unify(Term.Var(name), arg.withSubsts(substs))
-      //   } yield {
-      //     substs ++ newSubsts
-      //   }
-      // }
     }
   }
 
