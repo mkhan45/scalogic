@@ -4,147 +4,116 @@ import { UnifyJS } from 'scalajs:main.js'
 window.UnifyJS = UnifyJS;
 window.Const = UnifyJS.Const;
 window.Var = UnifyJS.Var;
-window.Tuple = (...args) => UnifyJS.Tuple(args.map(toTerm));
+window.Tuple = (...args) => {
+    let xs = [...args.map(toTerm)];
+    return UnifyJS.Tuple(xs);
+}
 
 window.Eq = (a, b) => UnifyJS.Eq(toTerm(a), toTerm(b));
 window.And = (...args) => args.reduce((a, b) => UnifyJS.And(a, b));
 window.Or = (...args) => args.reduce((a, b) => UnifyJS.Or(a, b));
 window.Not = UnifyJS.Not;
-window.Fact = (name, ...args) => UnifyJS.Fact(name, args.map(toTerm));
-window.RelApp = (name, ...args) => UnifyJS.RelApp(name, args.map(toTerm));
+window.Fact = (name, ...args) => {
+    let arg_terms = [...args.map(toTerm)];
+    return UnifyJS.Fact(name, arg_terms);
+}
+window.RelApp = (name, ...args) => {
+    let arg_terms = [...args.map(toTerm)];
+    return UnifyJS.RelApp(name, arg_terms);
+}
 
-window.Relation = (args, formula) => UnifyJS.Relation(args, formula);
+window.Relation = (args, formula) => UnifyJS.Relation([...args.map(x => x.trim())], formula);
 
 window.solve = (f, facts, relations) => UnifyJS.solve(f, facts, relations);
 
+window.mkRel = name => (...args) => window.RelApp(name, ...args.map(toTerm));
+window.mkFact = name => (...args) => window.Fact(name, ...args.map(toTerm));
+
 function toTerm(x) {
-    if (typeof x === 'number') return Const(x)
-    if (typeof x === 'string') return Var(x)
-    if (x instanceof Array) return Tuple(...x.map(toTerm))
+    if (typeof x === 'number') return Const(x);
+    if (typeof x === 'string') return Var(x);
+    if (x instanceof Array) return Tuple(...x.map(toTerm));
     if (x.__proto__.$classData.name.startsWith('scalogic.unify.Term')) return x;
 }
 window.toTerm = toTerm;
 
-// class And {
-//     constructor(...ls) {
-//         this.ls = ls
-//     }
-// }
-
-// class Or {
-//     constructor(...ls) {
-//         this.ls = ls
-//     }
-// }
-
-// class Fact {
-//     constructor(name, ...args) {
-//         this.name = name
-//         this.args = args
-//     }
-// }
-
-// class Relation {
-//     constructor(name, ...disjuncts) {
-//         this.name = name
-//         this.disjuncts = disjuncts
-//     }
-// }
-
 document.addEventListener('alpine:init', () => {
+    Alpine.data('env', () => ({
+        variables: 'x, y, z, xh, xs, yh, ys, a, b, c',
+        fact_names: 'edge',
+        facts: 'edge(1, 2)\nedge(2, 3)',
+        relation_names: 'connected, sameLength',
+        relations: 'connected(x, z) :- Or(edge(x, z), And(edge(x, y), connected(y, z)));\n' +
+                   'sameLength(x, y) :- Or(\n' +
+                   '  And(Eq(x, []), Eq(y, [])),\n' +
+                   '  And(\n' +
+                   '    Eq(x, [xh, xs]), Eq(y, [yh, ys]),\n' +
+                   '    sameLength(xs, ys)\n' +
+                   '  )\n' +
+                   ')',
+        query: 'sameLength([1, [3, [5, []]]], a)',
+        result: 'None (yet)',
 
-    Alpine.data('db', () => ({
-        variables: 'x, y, z',
-        facts: ['edge(1, 2)', 'edge(2, 3)'],
-        relations: ["connected(x, z) :- Or(edge(x, z), And(edge(x, y), connected(y, z)))"],
-        query: 'connected(1, 3)',
-        result: 'None',
-
-        parse_fact(fact) {
-            try {
-                let [name, args] = fact.slice(0, -1).split('(');
-                let arg_ls = args.split(',').filter(x => x != '').map(eval);
-                return { name, args: arg_ls.map(toTerm) };
-            } catch (e) {
-                console.log(e)
-                return false;
-            }
+        get_vars() {
+            return this.variables.split(',').map(x => x.trim()).filter(x => x != '');
         },
 
-        invalid_fact(fact) {
-            return this.parse_fact(fact) === false;
+        get_fact_names() {
+            return this.fact_names.split(',').map(x => x.trim()).filter(x => x != '');
         },
 
-        add_fact() {
-            this.facts.push('fact()')
+        get_facts() {
+            return this.facts.split('\n').map(x => x.trim()).filter(x => x != '');
         },
 
-        remove_fact(i) {
-            this.facts = this.facts.splice(i, i);
+        get_relation_names() {
+            return this.relation_names.split(',').map(x => x.trim()).filter(x => x != '');
         },
 
-        eval_vars() {
-            let vars = this.variables.split(',').map(x => x.trim());
-            for (let v of vars) {
+        get_relations() {
+            return this.relations.split(';').map(x => x.trim()).filter(x => x != '');
+        },
+
+        solve() {
+            for (let v of this.get_vars()) {
                 eval(`window.${v} = Var('${v}')`);
             }
-        },
 
-        parse_relation(rel) {
-            try {
-                this.eval_vars();
-                let [decl, body] = rel.trim().split(':-');
-                let [name, args] = decl.trim().slice(0, -1).split('(');
+            for (let f of this.get_fact_names()) {
+                eval(`window.${f} = mkFact('${f}')`);
+            }
+
+            for (let r of this.get_relation_names()) {
+                eval(`window.${r} = mkRel('${r}')`);
+            }
+
+            let facts = this.get_facts().map(f => {
+                let [name, args] = f.slice(0, -1).split('(');
                 let arg_ls = args.split(',').filter(x => x != '').map(eval);
-                return { name, args: arg_ls.map(toTerm), body };
-            } catch (e) {
-                console.log(e);
-                return false;
-            }
-        },
+                let arg_terms = arg_ls.map(toTerm);
+                return Fact(name, ...arg_terms);
+            });
 
-        invalid_rel(rel) {
-            return this.parse_relation(rel) === false;
-        },
+            let relations = this.get_relations().map(r => {
+                let [decl, body] = r.trim().split(':-');
+                let [name, arg_str] = decl.trim().slice(0, -1).split('(');
+                let args = arg_str.split(',').filter(x => x != '');
+                return { name, args, body };
+            });
 
-        add_rel() {
-            this.relations.push('rel() :- Eq(1, 1)')
-        },
-
-        remove_rel(i) {
-            this.relations = this.relations.splice(i, i);
-        },
-
-        run_query() {
-            this.eval_vars();
-
-            let facts = this.facts.map(this.parse_fact);
-            console.log(facts);
-            for (let fact of facts) {
-                eval(`window.${fact.name} = (...args) => window.Fact('${fact.name}', ...args)`);
-            }
-
-            let relations = this.relations.map(r => this.parse_relation(r));
-            console.log(this.relations, relations);
-
+            let relMap = new Map();
             for (let rel of relations) {
-                eval(`window.${rel.name} = (...args) => window.RelApp('${rel.name}', ...args)`);
+                relMap.set(rel.name, Relation(rel.args, eval(rel.body)));
             }
 
             let query = eval(this.query);
-            console.log(query);
+            console.log(query, facts, relMap);
 
-            let scala_facts = facts.map(fact => window.Fact(fact.name, ...fact.args));
-            let scala_relations = new Map();
-            for (let rel of relations) {
-                let scala_relation = window.Relation(rel.args, eval(rel.body));
-                scala_relations.set(rel.name, scala_relation);
+            try {
+                this.result = solve(query, facts, relMap).display();
+            } catch (e) {
+                this.result = e.toString();
             }
-            console.log(query, scala_facts, scala_relations);
-            let result = window.solve(query, scala_facts, scala_relations);
-            console.log(result);
-            this.result = result.display();
         }
-    }))
-
+    }));
 });

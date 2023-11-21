@@ -9,8 +9,8 @@ extension (t: Term) {
 case class Res(substs: Option[Substs]) {
   override def toString: String = substs match {
     case Some(m) if m.isEmpty => "true"
+    case Some(m) => m.toMap.toString
     case None => "false"
-    case Some(m) => m.toString
   }
 }
 

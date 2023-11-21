@@ -18,7 +18,8 @@ lazy val scalogic = project.in(file("."))
     scalaJSLinkerConfig ~= {
       _.withModuleKind(ModuleKind.ESModule)
         .withModuleSplitStyle(
-          ModuleSplitStyle.SmallModulesFor(List("scalogic")))
+          ModuleSplitStyle.SmallModulesFor(List("scalogic"))
+        )
     },
 
     /* Depend on the scalajs-dom library.

@@ -120,7 +120,9 @@ enum Formula {
     }
     case RelApp(name, args) => {
       val Relation(argNames, body) = relations(name)
-      val fstAssigns = argNames.zip(args).map({ case (name, arg) => Eq(Term.Var(name), arg) })
+      val fstAssigns: List[Formula] = argNames.zip(args).map({ 
+        case (name: String, arg: Term) => Eq(Term.Var(name), arg)
+      })
       val term = conjunct(fstAssigns :+ body: _*)
 
       val newRel = {
@@ -134,6 +136,7 @@ enum Formula {
 
       val cs = term.solve(using facts, relations + (name -> newRel))
       cs.map { cs =>
+        println(s"cs: $cs")
         val vs = args.map(_.freeVars).reduceLeft(_ ++ _).map(Term.Var(_))
         cs.filter({ case (k, v) => vs.contains(k) }).map({case (k, v) => (k, cs.fullEval(k)) })
       }

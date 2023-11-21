@@ -20,43 +20,6 @@ def fib(n: Int): Int = n match {
 def Main(): Unit = {
   val examples = dom.document.querySelector("#examples")
 
-  // val label = dom.document.createElement("label")
-  // label.textContent = "Input:"
-  // app.appendChild(label)
-
-  // val inp: dom.HTMLInputElement = dom.document.createElement("input").asInstanceOf[dom.HTMLInputElement]
-  // inp.setAttribute("type", "text")
-  // app.appendChild(inp)
-
-  // val out = dom.document.createElement("div")
-  // val outSpan = dom.document.createElement("span")
-  // out.textContent = "Output: "
-  // outSpan.textContent = "None"
-  // out.appendChild(outSpan)
-  // app.appendChild(out)
-
-  // val timer = dom.document.createElement("div")
-  // val timerSpan = dom.document.createElement("span")
-  // timer.textContent = "Time: "
-  // timerSpan.textContent = "None"
-  // timer.appendChild(timerSpan)
-  // app.appendChild(timer)
-
-  // val btn = dom.document.createElement("button")
-  // btn.textContent = "Calculate"
-  // btn.addEventListener("click", (_: dom.MouseEvent) => update())
-  // app.appendChild(btn)
-
-  // def update(): Unit = {
-  //   val n = inp.value.toInt
-  //   println(s"Calculating fib($n)")
-  //   val t1 = js.Date.now()
-  //   val res = fib(n)
-  //   val t2 = js.Date.now()
-  //   outSpan.textContent = res.toString
-  //   timerSpan.textContent = (t2 - t1).toString + "ms"
-  // }
-
   val stuff = dom.document.createElement("pre")
   examples.appendChild(stuff)
   def run(fs: Formula*)(using facts: Set[Fact], relations: Map[String, Relation]): Unit = {
@@ -66,7 +29,9 @@ def Main(): Unit = {
       stuff.textContent += s"$name(${relation.argNames.mkString(", ")}) :- ${relation.body}\n"
     stuff.textContent += "\n"
 
-    for (f <- fs) stuff.textContent += s"$f: ${f.?}\n"
+    for (f <- fs) {
+      stuff.textContent += s"$f: ${f.?}\n"
+    }
   }
 
   {
@@ -127,7 +92,8 @@ def Main(): Unit = {
       Tuple("xh", "xs") === ConsList(1, 2, 3, 4),
       sameLength(ConsList(1, 2), ConsList(2, 3)),
       sameLength(ConsList(1, 2), ConsList(2)),
-      sameLength(Tuple(1, Tuple(3, Tuple(5, Tuple()))), Tuple(1, Tuple(3, "a")))
+      sameLength(Tuple(1, Tuple(3, Tuple(5, Tuple()))), Tuple(1, "a")),
+      sameLength(ConsList(1, 3, 5), "a")
     )
   }
 }
