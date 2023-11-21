@@ -8,3 +8,10 @@ textarea, input {
 h1, h2, h3 {
     font-size: 1.1em;
 }
+
+.editor {
+    font-size: 0.9em;
+    width: 80ch;
+    height: 12em;
+    margin-top: 0.1em;
+}

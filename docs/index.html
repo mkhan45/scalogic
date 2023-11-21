@@ -4,9 +4,10 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.31.2/ace.min.js" integrity="sha512-4qIbBlcJOvbOmEB50FfnviJ9jOCen2yhi4skodkbTLU/uJJdULPxlX2R9Enf1oOBleUK9KD3fGmMcnItFQdNeA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <title>Scalogic</title>
-    <script type="module" crossorigin src="./assets/index-fad4b39b.js"></script>
-    <link rel="stylesheet" href="./assets/index-e0829b38.css">
+    <script type="module" crossorigin src="./assets/index-9ef7fdb5.js"></script>
+    <link rel="stylesheet" href="./assets/index-309d9f47.css">
   </head>
   <body>
     <div x-data="env">
@@ -15,11 +16,11 @@
         <h2> Facts </h2>
         <input type="text" x-model="fact_names"/>
         <br>
-        <textarea x-model="facts"></textarea>
+        <div class="editor" style="height:4em" x-init="init_fact_editor($el)"></div>
         <h2> Relations </h2>
         <input type="text" x-model="relation_names"/>
         <br>
-        <textarea x-model="relations"></textarea>
+        <div class="editor" x-init="init_rel_editor($el)"></div>
         <h2> Query </h2>
         <input type="text" x-model="query"/>
         <button @click="solve()">Run</button>

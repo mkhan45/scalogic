@@ -114,6 +114,18 @@ document.addEventListener('alpine:init', () => {
             } catch (e) {
                 this.result = e.toString();
             }
-        }
+        },
+
+        init_fact_editor(el, update) {
+            let editor = ace.edit(el);
+            editor.setValue(this.facts, -1);
+            editor.session.on('change', () => this.facts = editor.getValue());
+        },
+
+        init_rel_editor(el) {
+            let editor = ace.edit(el);
+            editor.setValue(this.relations, -1);
+            editor.session.on('change', () => this.relations = editor.getValue());
+        },
     }));
 });
