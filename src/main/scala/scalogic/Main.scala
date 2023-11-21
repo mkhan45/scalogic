@@ -18,49 +18,49 @@ def fib(n: Int): Int = n match {
 
 @main
 def Main(): Unit = {
-  val app = dom.document.querySelector("#app")
+  val examples = dom.document.querySelector("#examples")
 
-  val label = dom.document.createElement("label")
-  label.textContent = "Input:"
-  app.appendChild(label)
+  // val label = dom.document.createElement("label")
+  // label.textContent = "Input:"
+  // app.appendChild(label)
 
-  val inp: dom.HTMLInputElement = dom.document.createElement("input").asInstanceOf[dom.HTMLInputElement]
-  inp.setAttribute("type", "text")
-  app.appendChild(inp)
+  // val inp: dom.HTMLInputElement = dom.document.createElement("input").asInstanceOf[dom.HTMLInputElement]
+  // inp.setAttribute("type", "text")
+  // app.appendChild(inp)
 
-  val out = dom.document.createElement("div")
-  val outSpan = dom.document.createElement("span")
-  out.textContent = "Output: "
-  outSpan.textContent = "None"
-  out.appendChild(outSpan)
-  app.appendChild(out)
+  // val out = dom.document.createElement("div")
+  // val outSpan = dom.document.createElement("span")
+  // out.textContent = "Output: "
+  // outSpan.textContent = "None"
+  // out.appendChild(outSpan)
+  // app.appendChild(out)
 
-  val timer = dom.document.createElement("div")
-  val timerSpan = dom.document.createElement("span")
-  timer.textContent = "Time: "
-  timerSpan.textContent = "None"
-  timer.appendChild(timerSpan)
-  app.appendChild(timer)
+  // val timer = dom.document.createElement("div")
+  // val timerSpan = dom.document.createElement("span")
+  // timer.textContent = "Time: "
+  // timerSpan.textContent = "None"
+  // timer.appendChild(timerSpan)
+  // app.appendChild(timer)
 
-  val btn = dom.document.createElement("button")
-  btn.textContent = "Calculate"
-  btn.addEventListener("click", (_: dom.MouseEvent) => update())
-  app.appendChild(btn)
+  // val btn = dom.document.createElement("button")
+  // btn.textContent = "Calculate"
+  // btn.addEventListener("click", (_: dom.MouseEvent) => update())
+  // app.appendChild(btn)
 
-  def update(): Unit = {
-    val n = inp.value.toInt
-    println(s"Calculating fib($n)")
-    val t1 = js.Date.now()
-    val res = fib(n)
-    val t2 = js.Date.now()
-    outSpan.textContent = res.toString
-    timerSpan.textContent = (t2 - t1).toString + "ms"
-  }
+  // def update(): Unit = {
+  //   val n = inp.value.toInt
+  //   println(s"Calculating fib($n)")
+  //   val t1 = js.Date.now()
+  //   val res = fib(n)
+  //   val t2 = js.Date.now()
+  //   outSpan.textContent = res.toString
+  //   timerSpan.textContent = (t2 - t1).toString + "ms"
+  // }
 
   val stuff = dom.document.createElement("pre")
-  app.appendChild(stuff)
-
+  examples.appendChild(stuff)
   def run(fs: Formula*)(using facts: Set[Fact], relations: Map[String, Relation]): Unit = {
+    stuff.textContent += "\n"
     for (fact <- facts) stuff.textContent += s"$fact\n"
     for ((name, relation) <- relations) 
       stuff.textContent += s"$name(${relation.argNames.mkString(", ")}) :- ${relation.body}\n"
