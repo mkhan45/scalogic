@@ -7,7 +7,41 @@
     <title>Scalogic</title>
   </head>
   <body>
+    <div x-data="db">
+        <h2> Variables </h2>
+        <input type="text" x-model="variables"/>
+        <h2> Facts </h2>
+        <template x-for="(fact, i) in facts">
+            <div>
+                <input type="text" x-model="facts[i]"/>
+                <button @click="remove_fact(i)"> Remove </button>
+                <template x-if="invalid_fact(fact)">
+                    <span> Error: Invalid fact </span>
+                </template>
+            </div>
+        </template>
+        <button @click="add_fact()"> Add Fact </button>
+        <h2> Relations </h2>
+        <template x-for="(rel, i) in relations">
+            <div>
+                <input type="text" x-model="relations[i]"/>
+                <button @click="remove_rel(i)"> Remove </button>
+                <template x-if="invalid_rel(rel)">
+                    <span> Error: Invalid relation </span>
+                </template>
+            </div>
+        </template>
+        <button @click="add_rel()"> Add Relation </button>
+        <h2> Query </h2>
+        <input type="text" x-model="query"/>
+        <button @click="run_query()"> Run Query </button>
+        <h2> Results </h2>
+        <pre x-text="result">
+        </pre>
+    </div>
+    <h1> Examples </h1>
     <div id="examples"></div>
     <script type="module" src="/main.js"></script>
+    <script src="//unpkg.com/alpinejs" defer></script>
   </body>
 </html>
