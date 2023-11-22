@@ -14,3 +14,11 @@ containsAll(l1, l2) :- Or(
     Eq(l1, []),
     And(Eq(l1, [x, xs]), contains(l2, x), containsAll(xs, l2))
 );
+append(l1, x, l2) :- Or(
+    And(Eq(l1, []), Eq(l2, [x, []])),
+    And(Eq(l1, [xh, xs]), Eq(l2, [yh, ys]), Eq(xh, yh), append(xs, x, ys))
+);
+reverseOf(x, y) :- Or(
+    And(Eq(x, []), Eq(y, [])),
+    And(Eq(x, [xh, xs]), reverseOf(xs, yp), append(yp, xh, y))
+);

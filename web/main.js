@@ -43,10 +43,10 @@ window.toTerm = toTerm;
 
 document.addEventListener('alpine:init', () => {
     Alpine.data('env', () => ({
-        variables: 'x, y, z, xh, xs, yh, ys, a, b, c, ls, l1, l2',
+        variables: 'x, y, z, xh, xs, yh, ys, a, b, c, ls, l1, l2, yh, yp',
         fact_names: 'edge',
         facts: factsStr,
-        relation_names: 'connected, sameLength, contains, containsAll',
+        relation_names: 'connected, sameLength, contains, containsAll, append, reverseOf',
         relations: relationsStr,
         example_queries: {
             "Generate list of length": 'sameLength(ConsList(1, 3, 5, 9), a)',
@@ -54,9 +54,10 @@ document.addEventListener('alpine:init', () => {
             "Connection": 'connected(1, 3)',
             "Check contains": 'contains(ConsList(1, 3, 5), 3)',
             "Generate list containing": 'containsAll(ConsList(1, 3, 5, 9), [3, z])',
+            "reverse": "reverseOf(ConsList(1, 3, 5, 9), a)",
         },
         query: 'sameLength(ConsList(1, 3, 5, 9), a)',
-        query_key: 'Check contains',
+        query_key: 'Generate list of length',
         result: 'None (yet)',
         time: undefined,
 
