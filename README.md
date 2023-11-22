@@ -1,5 +1,7 @@
 # Scala Logic language
 
+Website: <https://mkhan45.github.io/scalogic/>
+
 ```
 edge(1, 2)
 edge(2, 3)
