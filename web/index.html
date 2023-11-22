@@ -22,11 +22,24 @@
         <h2> Query </h2>
         <input type="text" x-model="query"/>
         <button @click="solve()">Run</button>
+        <br>
+        <select>
+            <template x-for="[query_name, query_str] in example_queries">
+                <option x-text="query_name" @click="query = query_str"/>
+            </template>
+        </select>
         <h2> Result </h2>
         <pre x-text="result"/>
     </div>
     <h1> Examples </h1>
     <div id="examples"></div>
+    <h1> Bugs </h1>
+    <p> Variable scoping is broken so if you use the same variable name in different rules it might be wrong </p>
+    <p> The parser is weird </p>
+    <h1> Explanation </h1>
+    <p> Write all the variables you might use in the variables box, comma separated </p>
+    <p> Write all your facts in the facts box, semicolon separated </p>
+    <p> TODO </p>
     <script type="module" src="/main.js"></script>
     <script src="//unpkg.com/alpinejs" defer></script>
   </body>

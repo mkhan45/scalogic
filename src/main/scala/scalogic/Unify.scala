@@ -136,7 +136,7 @@ enum Formula {
 
       val cs = term.solve(using facts, relations + (name -> newRel))
       cs.map { cs =>
-        println(s"cs: $cs")
+        // println(s"cs: $cs")
         val vs = args.map(_.freeVars).reduceLeft(_ ++ _).map(Term.Var(_))
         cs.filter({ case (k, v) => vs.contains(k) }).map({case (k, v) => (k, cs.fullEval(k)) })
       }

@@ -1,0 +1,16 @@
+connected(x, z) :- Or(edge(x, z), And(edge(x, y), connected(y, z)));
+sameLength(x, y) :- Or(
+  And(Eq(x, []), Eq(y, [])),
+  And(
+    Eq(x, [xh, xs]), Eq(y, [yh, ys]),
+    sameLength(xs, ys)
+  )
+);
+contains(ls, x) :- Or(
+    Eq(ls, [x, xs]),
+    And(Eq(ls, [y, xs]), contains(xs, x))
+);
+containsAll(l1, l2) :- Or(
+    Eq(l1, []),
+    And(Eq(l1, [x, xs]), contains(l2, x), containsAll(xs, l2))
+);

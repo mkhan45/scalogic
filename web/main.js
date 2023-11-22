@@ -1,4 +1,6 @@
 import './style.css'
+import relationsStr from './relations.dl?raw'
+import factsStr from './facts.dl?raw'
 import { UnifyJS } from 'scalajs:main.js'
 
 window.UnifyJS = UnifyJS;
@@ -29,6 +31,8 @@ window.solve = (f, facts, relations) => UnifyJS.solve(f, facts, relations);
 window.mkRel = name => (...args) => window.RelApp(name, ...args.map(toTerm));
 window.mkFact = name => (...args) => window.Fact(name, ...args.map(toTerm));
 
+window.ConsList = (...els) => els.reduceRight((a, b) => Tuple(toTerm(b), toTerm(a)), []);
+
 function toTerm(x) {
     if (typeof x === 'number') return Const(x);
     if (typeof x === 'string') return Var(x);
@@ -39,19 +43,19 @@ window.toTerm = toTerm;
 
 document.addEventListener('alpine:init', () => {
     Alpine.data('env', () => ({
-        variables: 'x, y, z, xh, xs, yh, ys, a, b, c',
+        variables: 'x, y, z, xh, xs, yh, ys, a, b, c, ls, l1, l2',
         fact_names: 'edge',
-        facts: 'edge(1, 2)\nedge(2, 3)',
-        relation_names: 'connected, sameLength',
-        relations: 'connected(x, z) :- Or(edge(x, z), And(edge(x, y), connected(y, z)));\n' +
-                   'sameLength(x, y) :- Or(\n' +
-                   '  And(Eq(x, []), Eq(y, [])),\n' +
-                   '  And(\n' +
-                   '    Eq(x, [xh, xs]), Eq(y, [yh, ys]),\n' +
-                   '    sameLength(xs, ys)\n' +
-                   '  )\n' +
-                   ')',
-        query: 'sameLength([1, [3, [5, []]]], a)',
+        facts: factsStr,
+        relation_names: 'connected, sameLength, contains, containsAll',
+        relations: relationsStr,
+        example_queries: [
+            ["Generate list of length", 'sameLength(ConsList(1, 3, 5, 9), a)'],
+            ["Edge", 'edge(1, 3)'],
+            ["Connection", 'connected(1, 3)'],
+            ["Check contains", 'contains(ConsList(1, 3, 5), 3)'],
+            ["Generate list containing", 'containsAll(ConsList(1, 3, 5, 9), [3, z])'],
+        ],
+        query: 'sameLength(ConsList(1, 3, 5, 9), a)',
         result: 'None (yet)',
 
         get_vars() {
@@ -63,7 +67,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         get_facts() {
-            return this.facts.split('\n').map(x => x.trim()).filter(x => x != '');
+            return this.facts.split(';').map(x => x.trim()).filter(x => x != '');
         },
 
         get_relation_names() {
