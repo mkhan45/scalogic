@@ -15,3 +15,7 @@ h1, h2, h3 {
     height: 18em;
     margin-top: 0.1em;
 }
+
+p {
+    max-width: 80ch;
+}

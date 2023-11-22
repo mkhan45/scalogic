@@ -48,15 +48,17 @@ document.addEventListener('alpine:init', () => {
         facts: factsStr,
         relation_names: 'connected, sameLength, contains, containsAll',
         relations: relationsStr,
-        example_queries: [
-            ["Generate list of length", 'sameLength(ConsList(1, 3, 5, 9), a)'],
-            ["Edge", 'edge(1, 3)'],
-            ["Connection", 'connected(1, 3)'],
-            ["Check contains", 'contains(ConsList(1, 3, 5), 3)'],
-            ["Generate list containing", 'containsAll(ConsList(1, 3, 5, 9), [3, z])'],
-        ],
+        example_queries: {
+            "Generate list of length": 'sameLength(ConsList(1, 3, 5, 9), a)',
+            "Edge": 'edge(1, 3)',
+            "Connection": 'connected(1, 3)',
+            "Check contains": 'contains(ConsList(1, 3, 5), 3)',
+            "Generate list containing": 'containsAll(ConsList(1, 3, 5, 9), [3, z])',
+        },
         query: 'sameLength(ConsList(1, 3, 5, 9), a)',
+        query_key: 'Check contains',
         result: 'None (yet)',
+        time: undefined,
 
         get_vars() {
             return this.variables.split(',').map(x => x.trim()).filter(x => x != '');
@@ -114,7 +116,11 @@ document.addEventListener('alpine:init', () => {
             console.log(query, facts, relMap);
 
             try {
-                this.result = solve(query, facts, relMap).display();
+                let t0 = Date.now();
+                let res = solve(query, facts, relMap);
+                let t1 = Date.now();
+                this.result = res.display();
+                this.time = (t1 - t0) / 1000;
             } catch (e) {
                 this.result = e.toString();
             }

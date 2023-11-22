@@ -49,12 +49,11 @@ object JSExports {
     varCounts.clear()
     given factsList: Set[Formula.Fact] = facts.toList.toSet
     given relationsList: Map[String, Relation] = relations.toList.toMap
-    println(s"f: $formula")
-    println(s"facts: $factsList")
-    println(s"relations: $relationsList")
+    // println(s"f: $formula")
+    // println(s"facts: $factsList")
+    // println(s"relations: $relationsList")
     try {
       val result = formula.solve
-      // println("got result")
       SolveResult(result)
     } catch {
       case th: Throwable => {

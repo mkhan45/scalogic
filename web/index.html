@@ -23,22 +23,52 @@
         <input type="text" x-model="query"/>
         <button @click="solve()">Run</button>
         <br>
-        <select>
-            <template x-for="[query_name, query_str] in example_queries">
-                <option x-text="query_name" @click="query = query_str"/>
+        <select x-model="query_key" x-effect="query = example_queries[query_key]">
+            <template x-for="query_name of Object.keys(example_queries)">
+                <option x-text="query_name"/>
             </template>
         </select>
         <h2> Result </h2>
-        <pre x-text="result"/>
+        <pre x-text="result"></pre>
+        <div x-show="time !== undefined">
+            1 result in <span x-text="time"></span>s
+        </div>
     </div>
     <h1> Examples </h1>
     <div id="examples"></div>
     <h1> Bugs </h1>
     <p> The parser is weird </p>
     <h1> Explanation </h1>
+    <p>
+    This is a simple prolog-like logic engine. It's like a programming language
+    where functions only return true or false, but by leaving an argument as a
+    variable, you can make the engine solve for that variable.
+    </p>
+    <p>
+    The engine is written in Scala, but this frontend uses a partial embedding into JavaScript.
+    </p>
+    <h3> Variables </h3>
     <p> Write all the variables you might use in the variables box, comma separated </p>
-    <p> Write all your facts in the facts box, semicolon separated </p>
-    <p> ¯\_(ツ)_/¯ </p>
+    <h3> Facts </h3>
+    <p> 
+    Write all fact names in the box above the text editor, comma separated.
+    Then, write all your facts in the facts box, separated by semicolons.
+    Facts look like a function call. Declaring a fact tells the engine that
+    that fact holds for the given values, which should not be variables.
+    </p>
+    <h3> Relations </h3>
+    <p> 
+    Write all your relations in the relations box, separated by semicolons.
+    Relation declarations have the form:
+    <pre> relation_name(args) :- body </pre>
+    A relation is like a conditional fact. If the body holds, then the relation
+    holds for the given arguments.
+    </p>
+    <p>
+    The body of a relation is actually plain JavaScript, but it has to be
+    of type <code>Formula</code>, which is formed by the terms <code>Var, Const, Tuple</code>
+    and the operators <code>Eq, And, Or</code>, or a fact call or relation call.
+    </p>
     <script type="module" src="/main.js"></script>
     <script src="//unpkg.com/alpinejs" defer></script>
   </body>
