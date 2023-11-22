@@ -54,7 +54,9 @@ object JSExports {
     // println(s"relations: $relationsList")
     try {
       val result = formula.solve
-      SolveResult(result)
+      val fvs = formula.freeVars
+      val fvSubsts = result.map(r => fvs.map(v => (Term.Var(v), r.fullEval(Term.Var(v)))).toMap)
+      SolveResult(fvSubsts)
     } catch {
       case th: Throwable => {
         th.printStackTrace()

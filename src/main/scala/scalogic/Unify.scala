@@ -15,9 +15,9 @@ enum Term {
     case (t, (pat, replacement)) => t.withSubst(pat, replacement)
   }
 
-  def occursIn(t: Term): Boolean = t match {
+  def contains(t: Term): Boolean = t match {
     case _ if t == this => true
-    case Tuple(ts) => ts.exists(occursIn)
+    case Tuple(ts) => ts.exists(contains)
     case _ => false
   }
 
@@ -42,7 +42,8 @@ def unify(t1: Term, t2: Term): Option[Substs] = (t1, t2) match {
     case (t1: Var, t2: Var) if t1 == t2 => Some(Map.empty)
     case (t1: Var, t2) => Some(Map(t1 -> t2))
     case (t1, t2: Var) => Some(Map(t2 -> t1))
-    // case _ if t1 != t2 && t1.occursIn(t2) || t2.occursIn(t1) => None // TODO
+    case (t1: Term, t2: Term) if t1 == t2 => Some(Map.empty)
+    case (t1: Term, t2: Term) if t1.contains(t2) || t2.contains(t1) => None
     case (Tuple(ts1), Tuple(ts2)) if ts1.length == ts2.length => {
       ts1.zip(ts2).foldLeft(Some(Map.empty): Option[Substs]) { case (substAcc, (l, r)) =>
         for {
@@ -59,10 +60,13 @@ def unify(t1: Term, t2: Term): Option[Substs] = (t1, t2) match {
 type Substs = Map[Term, Term]
 
 extension (s: Substs) {
-  def fullEval(v: Term): Term = s.get(v) match {
-    case None => v
-    case Some(Tuple(ts)) => Tuple(ts.map(s.fullEval))
-    case Some(t) => s.fullEval(t)
+  def fullEval(v: Term): Term = v match {
+    case Tuple(ts) => Tuple(ts.map(s.fullEval))
+    case _ => s.get(v) match {
+      case None => v
+      case Some(Tuple(ts)) => Tuple(ts.map(s.fullEval))
+      case Some(t) => s.fullEval(t)
+    }
   }
 }
 
@@ -135,11 +139,12 @@ enum Formula {
       }
 
       val cs = term.solve(using facts, relations + (name -> newRel))
-      cs.map { cs =>
-        // println(s"cs: $cs")
-        val vs = args.map(_.freeVars).reduceLeft(_ ++ _).map(Term.Var(_))
-        cs.filter({ case (k, v) => vs.contains(k) }).map({case (k, v) => (k, cs.fullEval(k)) })
-      }
+      cs
+      // cs.map { cs =>
+      //   // println(s"cs: $cs")
+      //   val vs = args.map(_.freeVars).reduceLeft(_ ++ _).map(Term.Var(_))
+      //   cs.filter({ case (k, v) => vs.contains(k) }).map({case (k, v) => (k, cs.fullEval(k)) })
+      // }
     }
   }
 
