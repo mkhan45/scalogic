@@ -79,7 +79,7 @@ enum Formula {
   case Fact(name: String, args: List[Term])
   case RelApp(name: String, args: List[Term])
 
-  def freeVars(using relations: Map[String, Relation]): Set[String] = this match {
+  def freeVars: Set[String] = this match {
     case Eq(t1, t2) => t1.freeVars ++ t2.freeVars
     case And(f1, f2) => f1.freeVars ++ f2.freeVars
     case Or(f1, f2) => f1.freeVars ++ f2.freeVars
@@ -136,7 +136,7 @@ enum Formula {
 
       val cs = term.solve(using facts, relations + (name -> newRel))
       cs.map { cs =>
-        // println(s"cs: $cs")
+        println(s"cs: $cs")
         val vs = args.map(_.freeVars).reduceLeft(_ ++ _).map(Term.Var(_))
         cs.filter({ case (k, v) => vs.contains(k) }).map({case (k, v) => (k, cs.fullEval(k)) })
       }
