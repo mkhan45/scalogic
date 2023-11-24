@@ -12,16 +12,12 @@
         <h2> Variables </h2>
         <input type="text" x-model="variables"/>
         <h2> Facts </h2>
-        <input type="text" x-model="fact_names"/>
-        <br>
         <div class="editor" style="height:4em" x-init="init_fact_editor($el)"></div>
         <h2> Relations </h2>
-        <input type="text" x-model="relation_names"/>
-        <br>
         <div class="editor" x-init="init_rel_editor($el)"></div>
         <h2> Query </h2>
         <input type="text" x-model="query"/>
-        <button @click="solve()">Run</button>
+        <button @click="setTimeout(() => solve(), 0)">Run</button>
         <br>
         <select x-model="query_key" x-effect="query = example_queries[query_key]">
             <template x-for="query_name of Object.keys(example_queries)">
