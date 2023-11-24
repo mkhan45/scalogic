@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.31.2/ace.min.js" integrity="sha512-4qIbBlcJOvbOmEB50FfnviJ9jOCen2yhi4skodkbTLU/uJJdULPxlX2R9Enf1oOBleUK9KD3fGmMcnItFQdNeA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <title>Scalogic</title>
-    <script type="module" crossorigin src="./assets/index-583c2320.js"></script>
+    <script type="module" crossorigin src="./assets/index-c9e3c2b4.js"></script>
     <link rel="stylesheet" href="./assets/index-549c18b2.css">
   </head>
   <body>
@@ -14,16 +14,12 @@
         <h2> Variables </h2>
         <input type="text" x-model="variables"/>
         <h2> Facts </h2>
-        <input type="text" x-model="fact_names"/>
-        <br>
         <div class="editor" style="height:4em" x-init="init_fact_editor($el)"></div>
         <h2> Relations </h2>
-        <input type="text" x-model="relation_names"/>
-        <br>
         <div class="editor" x-init="init_rel_editor($el)"></div>
         <h2> Query </h2>
         <input type="text" x-model="query"/>
-        <button @click="solve()">Run</button>
+        <button @click="setTimeout(() => solve(), 0)">Run</button>
         <br>
         <select x-model="query_key" x-effect="query = example_queries[query_key]">
             <template x-for="query_name of Object.keys(example_queries)">
