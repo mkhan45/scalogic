@@ -5,9 +5,13 @@ import scala.scalajs.js.annotation.*
 
 import org.scalajs.dom
 
-import scalogic.unify.*
-import scalogic.unifysyntax.*
-import scalogic.unifysyntax.Conversions.given
+// import scalogic.unify.*
+// import scalogic.unifysyntax.*
+// import scalogic.unifysyntax.Conversions.given
+
+import scalogic.reunify.*
+import scalogic.reunifysyntax.*
+import scalogic.reunifysyntax.Conversions.given
 
 import Formula.Fact
 
@@ -53,47 +57,61 @@ def Main(): Unit = {
     given Map[String, Relation] = relations
 
     run(
-      edge(1, 2), edge(2, 3),
-      edge(1, 3),
+      // edge(1, 2), edge(2, 3),
+      // edge(1, 3),
       connected(1, 3),
     )
   }
 
-  {
-    given Set[Fact] = Set[Fact]()
+  val s1: PartialSubsts = List((Term.Var("x"), Term.Const(1)), (Term.Var("y"), Term.Const(2)))
+  val substs: Substs = Map(Term.Var("x") -> Term.Const(1), Term.Var("z") -> Term.Const(3))
 
-    val relations = Map[String, Relation]()
-    given Map[String, Relation] = relations
+  // {
+  //   given Set[Fact] = Set[Fact]()
 
-    val a = Tuple("x", 1, "z")
-    val b = Tuple("z", "y", "x")
+  //   val relations = Map[String, Relation]()
+  //   given Map[String, Relation] = relations
 
-    run(a === b)
-  }
+  //   val a = Tuple("x", 1, "z")
+  //   val b = Tuple("z", "y", "x")
 
-  {
-    given Set[Fact] = Set[Fact]()
+  //   run(a === b)
+  // }
 
-    def sameLength = MkRelation("sameLength")
-    val relations = Map[String, Relation](
-      "sameLength" -> sameLength.define("x", "y") { case Seq(x, y) =>
-        ((x === Tuple()) && (y === Tuple())) || (
-          ("x" === Tuple("xh", "xs")) && ("y" === Tuple("yh", "ys")) && sameLength("xs", "ys")
-        )
-      },
-    )
-    given Map[String, Relation] = relations
+  // {
+  //   given Set[Fact] = Set[Fact]()
 
-    println("===")
-    val l1 = ConsList(1, 2, 3, 4)
-    val l2 = ConsList(5, 4, 2, 1)
-    val l3 = ConsList(1, 2, 3)
-    run(
-      Tuple("xh", "xs") === ConsList(1, 2, 3, 4),
-      sameLength(ConsList(1, 2), ConsList(2, 3)),
-      sameLength(ConsList(1, 2), ConsList(2)),
-      sameLength(Tuple(1, Tuple(3, Tuple(5, Tuple()))), Tuple(1, "a")),
-      sameLength(ConsList(1, 3, 5), "a")
-    )
-  }
+  //   def sameLength = MkRelation("sameLength")
+  //   val relations = Map[String, Relation](
+  //     "sameLength" -> sameLength.define("x", "y") { case Seq(x, y) =>
+  //       ((x === Tuple()) && (y === Tuple())) || (
+  //         ("x" === Tuple("xh", "xs")) && ("y" === Tuple("yh", "ys")) && sameLength("xs", "ys")
+  //       )
+  //     },
+  //   )
+  //   given Map[String, Relation] = relations
+
+  //   println("===")
+  //   val l1 = ConsList(1, 2, 3, 4)
+  //   val l2 = ConsList(5, 4, 2, 1)
+  //   val l3 = ConsList(1, 2, 3)
+  //   run(
+  //     Tuple("xh", "xs") === ConsList(1, 2, 3, 4),
+  //     sameLength(ConsList(1, 2), ConsList(2, 3)),
+  //     sameLength(ConsList(1, 2), ConsList(2)),
+  //     sameLength(Tuple(1, Tuple(3, Tuple(5, Tuple()))), Tuple(1, "a")),
+  //     sameLength(ConsList(1, 3, 5), "a")
+  //   )
+  // }
+
+  // given Set[Fact] = Set.empty
+  // given Map[String, Relation] = Map.empty
+  // val f = Or(
+  //   Eq(Term.Var("x"), Term.Const(1)),
+  //   Eq(Term.Var("x"), Term.Const(2)),
+  // )
+
+  // val res = f.solve
+  // println(res)
+  // println(res.map(_.resolve))
 }

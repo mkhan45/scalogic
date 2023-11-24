@@ -30,15 +30,14 @@
         </select>
         <h2> Result </h2>
         <pre x-text="result"></pre>
-        <div x-show="time !== undefined">
-            1 result in <span x-text="time"></span>s
+        <div x-show="num_results !== 0">
+            <span x-text="num_results"></span> result in <span x-text="time"></span>s
         </div>
     </div>
     <h1> Examples </h1>
     <div id="examples"></div>
     <h1> Bugs </h1>
     <p> The parser is weird </p>
-    <p> Infinite loops sometimes when it probably shouldn't </p>
     <h1> Explanation </h1>
     <a href="https://github.com/mkhan45/scalogic">Source code</a>
     <p>

@@ -37,7 +37,7 @@ function toTerm(x) {
     if (typeof x === 'number') return Const(x);
     if (typeof x === 'string') return Var(x);
     if (x instanceof Array) return Tuple(...x.map(toTerm));
-    if (x.__proto__.$classData.name.startsWith('scalogic.unify.Term')) return x;
+    if (x.__proto__.$classData.name.startsWith('scalogic.reunify.Term')) return x;
 }
 window.toTerm = toTerm;
 
@@ -59,6 +59,7 @@ document.addEventListener('alpine:init', () => {
         query: 'sameLength(ConsList(1, 3, 5, 9), a)',
         query_key: 'Generate list of length',
         result: 'None (yet)',
+        num_results: 0,
         time: undefined,
 
         get_vars() {
@@ -121,6 +122,7 @@ document.addEventListener('alpine:init', () => {
                 let res = solve(query, facts, relMap);
                 let t1 = Date.now();
                 this.result = res.display();
+                this.num_results = res.length();
                 this.time = (t1 - t0) / 1000;
             } catch (e) {
                 this.result = e.toString();
