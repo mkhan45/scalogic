@@ -22,3 +22,4 @@ reverseOf(x, y) :- Or(
     And(Eq(x, []), Eq(y, [])),
     And(Eq(x, [xh, xs]), reverseOf(xs, yp), append(yp, xh, y))
 );
+palindrome(x) :- reverseOf(x, x);

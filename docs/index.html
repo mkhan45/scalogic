@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.31.2/ace.min.js" integrity="sha512-4qIbBlcJOvbOmEB50FfnviJ9jOCen2yhi4skodkbTLU/uJJdULPxlX2R9Enf1oOBleUK9KD3fGmMcnItFQdNeA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <title>Scalogic</title>
-    <script type="module" crossorigin src="./assets/index-99c264bf.js"></script>
+    <script type="module" crossorigin src="./assets/index-c082f718.js"></script>
     <link rel="stylesheet" href="./assets/index-549c18b2.css">
   </head>
   <body>
@@ -32,15 +32,14 @@
         </select>
         <h2> Result </h2>
         <pre x-text="result"></pre>
-        <div x-show="time !== undefined">
-            1 result in <span x-text="time"></span>s
+        <div x-show="num_results !== 0">
+            <span x-text="num_results"></span> result in <span x-text="time"></span>s
         </div>
     </div>
     <h1> Examples </h1>
     <div id="examples"></div>
     <h1> Bugs </h1>
     <p> The parser is weird </p>
-    <p> Infinite loops sometimes when it probably shouldn't </p>
     <h1> Explanation </h1>
     <a href="https://github.com/mkhan45/scalogic">Source code</a>
     <p>
