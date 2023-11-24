@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.31.2/ace.min.js" integrity="sha512-4qIbBlcJOvbOmEB50FfnviJ9jOCen2yhi4skodkbTLU/uJJdULPxlX2R9Enf1oOBleUK9KD3fGmMcnItFQdNeA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <title>Scalogic</title>
-    <script type="module" crossorigin src="./assets/index-c9e3c2b4.js"></script>
-    <link rel="stylesheet" href="./assets/index-549c18b2.css">
+    <script type="module" crossorigin src="./assets/index-4da7e1d2.js"></script>
+    <link rel="stylesheet" href="./assets/index-de10c282.css">
   </head>
   <body>
     <div x-data="env">
@@ -35,13 +35,14 @@
     <h1> Examples </h1>
     <div id="examples"></div>
     <h1> Bugs </h1>
-    <p> The parser is weird </p>
+    <p> Doesn't report errors from undeclared variables </p>
     <h1> Explanation </h1>
     <a href="https://github.com/mkhan45/scalogic">Source code</a>
     <p>
-    This is a simple prolog-like logic engine. It's like a programming language
+    This is a simple prolog-like relational language. It's like a programming language
     where functions only return true or false, but by leaving an argument as a
-    variable, you can make the engine solve for that variable.
+    variable, you can make the engine solve for that variable. The evaluation is
+    similar to MiniKanren, but not quite the same.
     </p>
     <p>
     The engine is written in Scala, but this frontend uses a partial embedding into JavaScript.
@@ -50,8 +51,7 @@
     <p> Write all the variables you might use in the variables box, comma separated </p>
     <h3> Facts </h3>
     <p> 
-    Write all fact names in the box above the text editor, comma separated.
-    Then, write all your facts in the facts box, separated by semicolons.
+    Write all your facts in the facts box, separated by semicolons.
     Facts look like a function call. Declaring a fact tells the engine that
     that fact holds for the given values, which should not be variables.
     </p>

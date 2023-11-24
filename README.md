@@ -2,6 +2,9 @@
 
 Website: <https://mkhan45.github.io/scalogic/>
 
+A logic programming language similar to MiniKanren. The code for the engine (<200LOC)
+is in `Reunify.scala`
+
 ```
 edge(1, 2)
 edge(2, 3)
