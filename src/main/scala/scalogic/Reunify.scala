@@ -53,7 +53,6 @@ extension (ps: PartialSubsts) {
       val lp = () => s1.flatMap(s => (s ++ tail).resolveLoop(substs))
       val rp = () => s2.flatMap(s => (s ++ tail).resolveLoop(substs))
       lp().orElse(rp())
-  end resolveLoop
 }
 
 extension (substs: Substs) {

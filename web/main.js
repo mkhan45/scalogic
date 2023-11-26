@@ -84,41 +84,42 @@ document.addEventListener('alpine:init', () => {
         },
 
         solve() {
-            for (let v of this.get_vars()) {
-                eval(`window.${v} = Var('${v}')`);
-            }
-
-            for (let f of this.get_fact_names()) {
-                eval(`window.${f} = mkFact('${f}')`);
-            }
-
-            for (let r of this.get_relation_names()) {
-                eval(`window.${r} = mkRel('${r}')`);
-            }
-
-            let facts = this.get_facts().map(f => {
-                let [name, args] = f.slice(0, -1).split('(');
-                let arg_ls = args.split(',').filter(x => x != '').map(eval);
-                let arg_terms = arg_ls.map(toTerm);
-                return Fact(name, ...arg_terms);
-            });
-
-            let relations = this.get_relations().map(r => {
-                let [decl, body] = r.trim().split(':-');
-                let [name, arg_str] = decl.trim().slice(0, -1).split('(');
-                let args = arg_str.split(',').filter(x => x != '');
-                return { name, args, body };
-            });
-
-            let relMap = new Map();
-            for (let rel of relations) {
-                relMap.set(rel.name, Relation(rel.args, eval(rel.body)));
-            }
-
-            let query = eval(this.query);
-            console.log(query, facts, relMap);
-
+            UnifyJS.clearFreshVarCounts();
             try {
+                for (let v of this.get_vars()) {
+                    eval(`window.${v} = Var('${v}')`);
+                }
+
+                for (let f of this.get_fact_names()) {
+                    eval(`window.${f} = mkFact('${f}')`);
+                }
+
+                for (let r of this.get_relation_names()) {
+                    eval(`window.${r} = mkRel('${r}')`);
+                }
+
+                let facts = this.get_facts().map(f => {
+                    let [name, args] = f.slice(0, -1).split('(');
+                    let arg_ls = args.split(',').filter(x => x != '').map(eval);
+                    let arg_terms = arg_ls.map(toTerm);
+                    return Fact(name, ...arg_terms);
+                });
+
+                let relations = this.get_relations().map(r => {
+                    let [decl, body] = r.trim().split(':-');
+                    let [name, arg_str] = decl.trim().slice(0, -1).split('(');
+                    let args = arg_str.split(',').filter(x => x != '');
+                    return { name, args, body };
+                });
+
+                let relMap = new Map();
+                for (let rel of relations) {
+                    relMap.set(rel.name, Relation(rel.args, eval(rel.body)));
+                }
+
+                let query = eval(this.query);
+                console.log(query, facts, relMap);
+
                 let t0 = Date.now();
                 let res = solve(query, facts, relMap);
                 let t1 = Date.now();

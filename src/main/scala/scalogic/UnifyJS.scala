@@ -32,10 +32,11 @@ object JSExports {
     reunify.Relation(newArgs, formula.withSubsts(argSubsts).withSubsts(freeVarSubsts))
   }
 
+  def clearFreshVarCounts(): Unit = reunify.FreshVar.varCounts.clear()
+
   def solve(
     formula: Formula, facts: js.Array[Formula.Fact], relations: js.Map[String, reunify.Relation]
   ): SolveResult = {
-    reunify.FreshVar.varCounts.clear()
     given factsList: Set[Formula.Fact] = facts.toList.toSet
     given relationsList: Map[String, Relation] = relations.toList.toMap
     // println(s"f: $formula")
