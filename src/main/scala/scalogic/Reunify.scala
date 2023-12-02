@@ -50,9 +50,10 @@ extension (ps: PartialSubsts) {
       // not sure how to interleave
       val s1 = l.solve
       val s2 = r.solve
-      val lp = () => s1.flatMap(s => (s ++ tail).resolveLoop(substs))
-      val rp = () => s2.flatMap(s => (s ++ tail).resolveLoop(substs))
-      lp().orElse(rp())
+      lazy val lp = s1.flatMap(s => (s ++ tail).resolveLoop(substs))
+      lazy val rp = s2.flatMap(s => (s ++ tail).resolveLoop(substs))
+      lp.orElse(rp)
+  end resolveLoop
 }
 
 extension (substs: Substs) {
