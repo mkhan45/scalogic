@@ -26,3 +26,21 @@ sameLength((1, (2, ())), (2, ())): false
 // solves for a valid a that makes the two lists the same length
 sameLength((1, (3, (5, ()))), (1, (3, a))): HashMap(a -> (yh'', ()))
 ```
+
+## Running
+
+### Development mode:
+```sh
+sbt> ~fastLinkJS
+```
+```sh
+cd vite
+npm run dev
+```
+
+### Build
+```sh
+./build_web.sh
+basic-http-server docs
+```
+```

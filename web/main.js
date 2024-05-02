@@ -54,6 +54,7 @@ document.addEventListener('alpine:init', () => {
             "Generate list containing": 'containsAll(ConsList(1, 3, 5, 9), [3, z])',
             "reverse": "reverseOf(ConsList(1, 3, 5, 9), a)",
             "fancy palindrome": "And(palindrome(x), containsAll(ConsList(1, 3, 5, 9), x), Eq(x, [2, xs]))",
+            "cycle": "And(Eq(x, [y]), Eq(y, [z]), Eq(z, [x]))"
         },
         query: 'sameLength(ConsList(1, 3, 5, 9), a)',
         query_key: 'Generate list of length',

@@ -66,11 +66,11 @@ import Formula.*
 def unify(t1: Term, t2: Term, s: Substs): Option[Substs] = (s.eval(t1), s.eval(t2)) match
   case (t1: Const, t2: Const) if t1 == t2 => Some(s)
   case (t1: Const, t2: Const) /* t1 != t2 */ => None
+  case (t1: Term, t2: Term) if t1 == t2 => Some(s)
+  case (t1: Term, t2: Term) if t1.contains(t2) || t2.contains(t1) => None
   case (t1: Var, t2: Var) if t1 == t2 => Some(s)
   case (t1: Var, t2) => Some(s + (t1 -> t2))
   case (t1, t2: Var) => Some(s + (t2 -> t1))
-  case (t1: Term, t2: Term) if t1 == t2 => Some(s)
-  case (t1: Term, t2: Term) if t1.contains(t2) || t2.contains(t1) => None
   case (Tuple(ts1), Tuple(ts2)) if ts1.length == ts2.length =>
     ts1.zip(ts2).foldLeft(Some(s): Option[Substs]) { case (substAcc, (l, r)) =>
       for {
